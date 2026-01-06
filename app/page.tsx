@@ -1,65 +1,240 @@
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
+
+/**
+ * Home Page
+ *
+ * FLOW (LONG-TERM TRACEABLE):
+ * module load
+ * → mount
+ * → SEO content rendered
+ * → intents prepared
+ * → UI rendered
+ * → CTA ready
+ * → idle
+ * → unmount
+ */
+
+console.log("📦 [Home] MODULE LOADED");
+
+const intents = [
+  { label: "💍 Marriage", desc: "Looking for a life partner" },
+  { label: "❤️ Serious", desc: "Meaningful long-term relationship" },
+  { label: "💬 Casual", desc: "Dating & getting to know people" },
+  { label: "🔥 One Night", desc: "Short-term connection" },
+];
 
 export default function Home() {
+  useEffect(() => {
+    console.log("🟢 [Home] PAGE MOUNTED");
+
+    console.log(
+      "📌 [Home] Primary intents prepared:",
+      intents.map((i) => i.label)
+    );
+
+    console.log("🔍 [Home][SEO] Secondary searchable intents declared:");
+    console.log([
+      "Friends with benefits",
+      "Adult student partner",
+      "Gym partner",
+      "Walk partner",
+      "Travel partner",
+      "Prayer partner",
+      "Reading partner",
+      "Emotional support partner",
+    ]);
+
+    console.log("🧠 [Home] Waiting for user interaction (idle)");
+
+    return () => {
+      console.log("🏁 [Home] PAGE UNMOUNTED");
+    };
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      {/* 🔒 SEO TEXT BLOCK */}
+      <section className="sr-only" aria-hidden="true">
+        <h1>InstantConnect Dating Platform</h1>
+        <p>
+          InstantConnect is a modern dating and social connection platform
+          designed for people seeking marriage, serious relationships, casual
+          dating, one-night connections, friends with benefits, adult student
+          partners, gym partners, travel partners, and emotional support.
+        </p>
+
+        <ul>
+          <li>Marriage partner</li>
+          <li>Serious relationship</li>
+          <li>Casual dating</li>
+          <li>One night connection</li>
+          <li>Friends with benefits</li>
+          <li>Adult student partner</li>
+          <li>Gym partner</li>
+          <li>Walking partner</li>
+          <li>Travel partner</li>
+          <li>Prayer partner</li>
+          <li>Reading partner</li>
+          <li>Emotional support partner</li>
+        </ul>
+      </section>
+
+      {/* 👁️ VISIBLE UI */}
+      <section
+        className="
+          min-h-[calc(100vh-80px)]
+          flex items-center
+          bg-gradient-to-br
+          from-slate-50 via-white to-slate-100
+          overflow-hidden
+        "
+      >
+        <div className="mx-auto w-full max-w-7xl px-6 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+
+          {/* LEFT */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            onAnimationComplete={() =>
+              console.log("🎬 [Home] Left content animation complete")
+            }
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-gray-900">
+              Real Connections.
+              <br />
+              <span className="text-gray-700">Real Intentions.</span>
+            </h1>
+
+            <p className="text-gray-600 mb-10 max-w-xl text-lg">
+              InstantConnect is built for people who know what they want —
+              whether it’s marriage, a serious relationship, or a clear,
+              respectful connection.
+            </p>
+
+            {/* INTENTS */}
+            <motion.div
+              className="grid grid-cols-2 gap-6 mb-12"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.1 } },
+              }}
+              onAnimationComplete={() =>
+                console.log("📦 [Home] Intent cards rendered")
+              }
+            >
+              {intents.map((i) => (
+                <motion.div
+                  key={i.label}
+                  variants={{
+                    hidden: { opacity: 0, y: 16 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.35 }}
+                  className="
+                    rounded-2xl
+                    bg-white/80 backdrop-blur
+                    p-5
+                    shadow-md
+                    border border-gray-200/60
+                    hover:shadow-lg
+                    transition
+                  "
+                >
+                  <div className="font-semibold text-gray-900">
+                    {i.label}
+                  </div>
+                  <div className="text-gray-500 text-sm mt-1">
+                    {i.desc}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-5 max-w-lg">
+              <Link
+                href="/auth/register"
+                className="
+                  flex items-center justify-center
+                  rounded-2xl
+                  bg-gray-900
+                  px-8 py-4
+                  text-white text-lg font-semibold
+                  shadow-xl
+                  hover:bg-black
+                  transition
+                "
+              >
+                Get Started
+              </Link>
+
+              <Link
+                href="/auth/login"
+                className="
+                  flex items-center justify-center
+                  rounded-2xl
+                  border border-gray-300
+                  bg-white
+                  px-8 py-4
+                  text-gray-700 text-lg font-medium
+                  hover:bg-gray-50
+                  transition
+                "
+              >
+                Sign in
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* RIGHT */}
+          <motion.div
+            className="flex justify-center"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            onAnimationComplete={() =>
+              console.log("🖼️ [Home] Hero image rendered")
+            }
           >
-            Documentation
-          </a>
+            <div className="relative">
+              <div
+                className="
+                  absolute -inset-4
+                  rounded-3xl
+                  bg-gradient-to-tr
+                  from-gray-200 to-gray-100
+                  blur-2xl
+                  opacity-60
+                "
+              />
+              <Image
+                src="/hero.jpg"
+                alt="InstantConnect dating and relationship platform"
+                width={520}
+                height={520}
+                priority
+                className="
+                  relative
+                  rounded-3xl
+                  shadow-2xl
+                  object-cover
+                "
+              />
+            </div>
+          </motion.div>
+
         </div>
-      </main>
-    </div>
+      </section>
+
+      {console.log("✅ [Home] PAGE RENDER COMPLETE")}
+    </>
   );
 }
