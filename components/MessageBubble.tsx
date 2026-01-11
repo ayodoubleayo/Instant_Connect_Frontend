@@ -74,7 +74,7 @@ export function MessageBubble({ message, isMine, socket }: any) {
           onClick={handleDelete}
           className="absolute -top-2 -right-2 text-xs bg-red-700 text-white rounded-full px-2"
         >
-          delete
+          
         </button>
       )}
 
