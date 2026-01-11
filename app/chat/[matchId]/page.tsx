@@ -39,16 +39,10 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const [matchMeta, setMatchMeta] = useState<MatchMeta | null>(null);
 
   const [blocked, setBlocked] = useState(false);
-  const [unlocked, setUnlocked] = useState(false); // 🔐 SOURCE OF TRUTH
-
-  /* ================= PAGE MOUNT ================= */
-  useEffect(() => {
-    console.log("[ChatPage] Mounted", { matchId });
-  }, []);
+  const [unlocked, setUnlocked] = useState(false);
 
   /* ================= SOCKET HANDLERS ================= */
   const handlers = useMemo(
@@ -58,7 +52,6 @@ export default function ChatPage() {
           const exists = prev.find(
             (m) => m.clientId && m.clientId === msg.clientId
           );
-
           return exists
             ? prev.map((m) =>
                 m.clientId === msg.clientId ? msg : m
@@ -112,21 +105,18 @@ export default function ChatPage() {
 
   const { socket } = useRealtimeChat(matchId, handlers);
 
-  /* ================= LOAD MESSAGES ================= */
+  /* ================= LOAD DATA ================= */
   useEffect(() => {
     if (!matchId) return;
-
     api<any[]>(`/chat/${matchId}`).then(setMessages);
   }, [matchId]);
 
-  /* ================= LOAD MATCH META ================= */
   useEffect(() => {
     if (!matchId) return;
-
     api(`/matches/${matchId}`)
       .then((res: any) => {
         setMatchMeta({ price: res.price });
-        setUnlocked(!!res.unlocked); // 🔐 IMPORTANT
+        setUnlocked(!!res.unlocked);
       })
       .catch(() => {
         setMatchMeta(null);
@@ -134,47 +124,33 @@ export default function ChatPage() {
       });
   }, [matchId]);
 
-  /* ================= ACTIVATE MATCH ================= */
   useEffect(() => {
     if (!matchId) return;
-
     setActiveMatch(matchId);
     clearUnread(matchId);
     socket.current.emit("message:seen", { matchId });
-
-    return () => {
-      setActiveMatch(null);
-    };
+    return () => setActiveMatch(null);
   }, [matchId]);
 
   /* ================= AUTOSCROLL ================= */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [messages]);
 
-  /* ================= PREMIUM FILTER ================= */
+  /* ================= FILTER ================= */
   useEffect(() => {
-    // 🔓 PAID = NO RESTRICTIONS
-    if (unlocked) {
+    if (unlocked || !text.trim()) {
       setBlocked(false);
       return;
     }
-
-    if (!text.trim()) {
-      setBlocked(false);
-      return;
-    }
-
-    const blockedNow = containsBannedContentClient(text);
-    setBlocked(blockedNow);
+    setBlocked(containsBannedContentClient(text));
   }, [text, unlocked]);
 
-  /* ================= SEND MESSAGE ================= */
+  /* ================= SEND ================= */
   async function send() {
     if (!text.trim() || !me || (blocked && !unlocked)) return;
 
     const clientId = crypto.randomUUID();
-
     const optimistic = {
       id: clientId,
       clientId,
@@ -186,7 +162,6 @@ export default function ChatPage() {
 
     setMessages((prev) => [...prev, optimistic]);
     setText("");
-    socket.current.emit("typing:stop", { matchId });
 
     await sendMessage(matchId, {
       content: optimistic.content,
@@ -195,74 +170,83 @@ export default function ChatPage() {
   }
 
   return (
-  <div className="relative max-w-2xl mx-auto min-h-[100dvh] flex flex-col bg-gray-100">
-    {/* Header */}
-    <ChatHeader
-      online={!!onlineByMatch[matchId]}
-      lastSeen={lastSeenByMatch[matchId] ?? null}
-    />
-
-    {/* 🔥 PAYMENT ENTRY POINT */}
-    {matchMeta && (
-      <ContactInfo
-        matchId={matchId}
-        price={matchMeta.price}
-        highlight={blocked && !unlocked}
+    <div className="max-w-2xl mx-auto h-[100dvh] flex flex-col bg-gray-100">
+      {/* HEADER */}
+      <ChatHeader
+        online={!!onlineByMatch[matchId]}
+        lastSeen={lastSeenByMatch[matchId] ?? null}
       />
-    )}
 
-    {/* ================= MESSAGES (SCROLL AREA) ================= */}
-    <div className="flex-1 overflow-y-auto px-2 pb-28">
-      {messages.map((m) => (
-        <MessageBubble
-          key={m.id}
-          message={m}
-          isMine={m.senderId === me?.id}
-          socket={socket.current}
+      {matchMeta && (
+        <ContactInfo
+          matchId={matchId}
+          price={matchMeta.price}
+          highlight={blocked && !unlocked}
         />
-      ))}
-      <div ref={bottomRef} />
-    </div>
+      )}
 
-    {/* ================= BLOCKED WARNING ================= */}
-    {blocked && !unlocked && (
-      <div className="px-4 py-2 text-sm bg-red-50 text-red-600 border-t">
-        ⚠️ Premium content detected.
-        <span className="ml-1 font-medium">
-          Unlock chat by paying for yourself or your partner.
-        </span>
+      {/* ================= MESSAGE LIST ================= */}
+      <div className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-3">
+        {messages.map((m) => (
+          <MessageBubble
+            key={m.id}
+            message={m}
+            isMine={m.senderId === me?.id}
+            socket={socket.current}
+          />
+        ))}
+        <div ref={bottomRef} />
       </div>
-    )}
 
-    {/* ================= FIXED INPUT BAR ================= */}
-    <div
-      className="
-        fixed bottom-0 left-0 right-0
-        bg-white border-t
-        p-3 flex gap-2
-        max-w-2xl mx-auto
-        pb-[env(safe-area-inset-bottom)]
-      "
-    >
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        className={`flex-1 border rounded-full px-4 py-2 ${
-          blocked && !unlocked ? "border-red-400 bg-red-50" : ""
-        }`}
-        placeholder="Type message…"
-      />
-      <button
-        onClick={send}
-        disabled={blocked && !unlocked}
-        className={`px-4 rounded-full text-white ${
-          blocked && !unlocked
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-black"
-        }`}
+      {/* ================= WARNING ================= */}
+      {blocked && !unlocked && (
+        <div className="px-4 py-2 text-sm bg-red-50 text-red-600 border-t">
+          ⚠️ Premium content detected. Unlock chat to continue.
+        </div>
+      )}
+
+      {/* ================= INPUT BAR (STICKY, NOT FIXED) ================= */}
+      <div
+        className="
+          sticky bottom-0
+          bg-white border-t
+          px-3 py-3
+          flex gap-2
+          items-center
+          pb-[env(safe-area-inset-bottom)]
+        "
       >
-        Send
-      </button>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Type message…"
+          className={`
+            flex-1
+            border rounded-full
+            px-4 py-2
+            focus:outline-none
+            focus:ring-2 focus:ring-red-400
+            ${blocked && !unlocked ? "border-red-400 bg-red-50" : ""}
+          `}
+        />
+        <button
+          onClick={send}
+          disabled={blocked && !unlocked}
+          className={`
+            px-5 py-2
+            rounded-full
+            text-white font-medium
+            transition
+            ${
+              blocked && !unlocked
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black active:scale-95"
+            }
+          `}
+        >
+          Send
+        </button>
+      </div>
     </div>
-  </div>
-);}
+  );
+}
