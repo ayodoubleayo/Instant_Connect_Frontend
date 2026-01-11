@@ -195,7 +195,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto">
+<div className="flex flex-col min-h-[100dvh] max-w-2xl mx-auto">
       <ChatHeader
         online={!!onlineByMatch[matchId]}
         lastSeen={lastSeenByMatch[matchId] ?? null}
@@ -210,7 +210,7 @@ export default function ChatPage() {
         />
       )}
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+<div className="flex flex-col min-h-screen min-h-[100dvh] max-w-2xl mx-auto">
         {messages.map((m) => (
           <MessageBubble
             key={m.id}
