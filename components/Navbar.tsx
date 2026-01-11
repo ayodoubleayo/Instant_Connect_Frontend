@@ -46,10 +46,22 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-gray-200">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-        
-        {/* 🔥 BIG LOGO */}
+    <nav
+      className="
+        sticky top-0 z-50 w-full
+        bg-white/85 backdrop-blur
+        rounded-b-2xl
+        shadow-md
+        border-b-2 border-transparent
+        bg-clip-padding
+      "
+      style={{
+        borderImage:
+          "linear-gradient(to right, #fecaca, #fda4af, #fecaca) 1",
+      }}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        {/* 🔥 LOGO */}
         <Link
           href="/"
           className="flex items-center gap-3 font-extrabold tracking-tight"
@@ -68,20 +80,13 @@ export default function Navbar() {
               href={l.href}
               className="
                 relative
-                text-gray-700
-                font-medium
-                transition-all
-                duration-200
-                hover:text-red-600
-                hover:scale-105
-                after:absolute
-                after:left-0
-                after:-bottom-1
-                after:h-[2px]
-                after:w-0
+                text-gray-700 font-medium
+                transition-all duration-200
+                hover:text-red-600 hover:scale-105
+                after:absolute after:left-0 after:-bottom-1
+                after:h-[2px] after:w-0
                 after:bg-red-600
-                after:transition-all
-                after:duration-300
+                after:transition-all after:duration-300
                 hover:after:w-full
               "
             >
@@ -95,7 +100,6 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* ✅ CONTACT */}
           <a
             href={CONTACT_LINK}
             target="_blank"
@@ -132,7 +136,7 @@ export default function Navbar() {
 
         {/* MOBILE TOGGLE */}
         <button
-          className="md:hidden border px-3 py-2"
+          className="md:hidden rounded-lg border border-gray-300 px-3 py-2"
           onClick={() => setOpen(!open)}
         >
           ☰
@@ -141,7 +145,7 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {open && (
-        <div className="md:hidden border-t bg-gray-100 px-6 py-4 space-y-4">
+        <div className="md:hidden border-t bg-white px-6 py-4 space-y-4">
           {navLinks.map((l) => (
             <Link
               key={l.href}
@@ -158,7 +162,6 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* ✅ CONTACT (MOBILE) */}
           <a
             href={CONTACT_LINK}
             target="_blank"

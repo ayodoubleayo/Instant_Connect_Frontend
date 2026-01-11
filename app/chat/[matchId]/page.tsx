@@ -195,66 +195,74 @@ export default function ChatPage() {
   }
 
   return (
-<div className="flex flex-col min-h-[100dvh] max-w-2xl mx-auto">
-      <ChatHeader
-        online={!!onlineByMatch[matchId]}
-        lastSeen={lastSeenByMatch[matchId] ?? null}
+  <div className="relative max-w-2xl mx-auto min-h-[100dvh] flex flex-col bg-gray-100">
+    {/* Header */}
+    <ChatHeader
+      online={!!onlineByMatch[matchId]}
+      lastSeen={lastSeenByMatch[matchId] ?? null}
+    />
+
+    {/* 🔥 PAYMENT ENTRY POINT */}
+    {matchMeta && (
+      <ContactInfo
+        matchId={matchId}
+        price={matchMeta.price}
+        highlight={blocked && !unlocked}
       />
+    )}
 
-      {/* 🔥 PAYMENT ENTRY POINT */}
-      {matchMeta && (
-        <ContactInfo
-          matchId={matchId}
-          price={matchMeta.price}
-          highlight={blocked && !unlocked}
+    {/* ================= MESSAGES (SCROLL AREA) ================= */}
+    <div className="flex-1 overflow-y-auto px-2 pb-28">
+      {messages.map((m) => (
+        <MessageBubble
+          key={m.id}
+          message={m}
+          isMine={m.senderId === me?.id}
+          socket={socket.current}
         />
-      )}
-
-<div className="flex flex-col min-h-screen min-h-[100dvh] max-w-2xl mx-auto">
-        {messages.map((m) => (
-          <MessageBubble
-            key={m.id}
-            message={m}
-            isMine={m.senderId === me?.id}
-            socket={socket.current}
-          />
-        ))}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {blocked && !unlocked && (
-        <div className="px-4 py-2 text-sm bg-red-50 text-red-600 border-t">
-          ⚠️ Premium content detected.
-          <span className="ml-1 font-medium">
-            Unlock chat by paying for yourself or your partner.
-          </span>
-        </div>
-      )}
-
-      <div className="border-t p-3 flex gap-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className={`flex-1 border rounded-full px-4 py-2 ${
-            blocked && !unlocked
-              ? "border-red-400 bg-red-50"
-              : ""
-          }`}
-          placeholder="Type message…"
-        />
-        <button
-          onClick={send}
-          disabled={blocked && !unlocked}
-          className={`px-4 rounded-full text-white ${
-            blocked && !unlocked
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-black"
-          }`}
-        >
-          Send
-        </button>
-      </div>
+      ))}
+      <div ref={bottomRef} />
     </div>
-  );
-}
+
+    {/* ================= BLOCKED WARNING ================= */}
+    {blocked && !unlocked && (
+      <div className="px-4 py-2 text-sm bg-red-50 text-red-600 border-t">
+        ⚠️ Premium content detected.
+        <span className="ml-1 font-medium">
+          Unlock chat by paying for yourself or your partner.
+        </span>
+      </div>
+    )}
+
+    {/* ================= FIXED INPUT BAR ================= */}
+    <div
+      className="
+        fixed bottom-0 left-0 right-0
+        bg-white border-t
+        p-3 flex gap-2
+        max-w-2xl mx-auto
+        pb-[env(safe-area-inset-bottom)]
+      "
+    >
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className={`flex-1 border rounded-full px-4 py-2 ${
+          blocked && !unlocked ? "border-red-400 bg-red-50" : ""
+        }`}
+        placeholder="Type message…"
+      />
+      <button
+        onClick={send}
+        disabled={blocked && !unlocked}
+        className={`px-4 rounded-full text-white ${
+          blocked && !unlocked
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-black"
+        }`}
+      >
+        Send
+      </button>
+    </div>
+  </div>
+);}
