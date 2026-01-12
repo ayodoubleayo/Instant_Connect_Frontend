@@ -10,13 +10,20 @@ export interface Message {
   senderId: string;
   createdAt?: string;
   deletedAt?: string | null;
-  status?: "sending" | "sent" | "delivered";
+  status?: "sending" | "sent" | "delivered" | "seen";
+
+  deliveredAt?: string | null; // ✅ allow null
+  seenAt?: string | null;      // ✅ allow null
 }
+
+
 
 interface ChatState {
   activeMatchId: string | null;
   unreadByMatch: Record<string, number>;
   messagesByMatch: Record<string, Message[]>;
+    markMessageSeen: (matchId: string, messageId: string) => void; // ✅ ADD THIS
+
 
   /* =========================
      PRESENCE (NEW)
@@ -83,38 +90,50 @@ export const useChatStore = create<ChatState>((set) => ({
   /* =========================
      SERVER CONFIRM
   ========================= */
-  replaceMessageByClientId: (matchId, clientId, serverMsg) => {
-    console.log("🟢 [ChatStore] replaceMessageByClientId", {
-      matchId,
-      clientId,
-      serverMsg,
-    });
+// Replace message by clientId
 
-    set((state) => {
-      const before = state.messagesByMatch[matchId] ?? [];
+replaceMessageByClientId: (matchId, clientId, serverMsg) => {
+  set((state) => {
+    const before = state.messagesByMatch[matchId] ?? [];
+    const after: Message[] = before.map((m) =>
+      m.clientId === clientId
+        ? {
+            ...m,
+            ...serverMsg,
+            status: serverMsg.seenAt
+              ? "seen"
+              : serverMsg.deliveredAt
+              ? "delivered"
+              : "sent",
+          }
+        : m
+    );
 
-      const after: Message[] = before.map((m) =>
-        m.clientId === clientId
-          ? { ...serverMsg, status: "sent" }
-          : m
-      );
-
-      return {
-        messagesByMatch: {
-          ...state.messagesByMatch,
-          [matchId]: after,
-        },
-      };
-    });
-  },
+    return {
+      messagesByMatch: {
+        ...state.messagesByMatch,
+        [matchId]: after,
+      },
+    };
+  });
+},
 
   /* =========================
      REALTIME RECEIVE
   ========================= */
-  addIncomingMessage: (msg) => {
-    console.log("🔵 [ChatStore] addIncomingMessage", msg);
+ addIncomingMessage: (msg) => {
+  console.log("🔵 [ChatStore] addIncomingMessage", msg);
 
-    set((state) => ({
+  set((state) => {
+    const existing = state.messagesByMatch[msg.matchId]?.some(
+      (m) =>
+        m.id === msg.id ||
+        (msg.clientId && m.clientId === msg.clientId)
+    );
+
+    if (existing) return state;
+
+    return {
       messagesByMatch: {
         ...state.messagesByMatch,
         [msg.matchId]: [
@@ -122,8 +141,9 @@ export const useChatStore = create<ChatState>((set) => ({
           { ...msg, status: "delivered" },
         ],
       },
-    }));
-  },
+    };
+  });
+},
 
   /* =========================
      DELETE
@@ -173,6 +193,30 @@ export const useChatStore = create<ChatState>((set) => ({
       delete copy[matchId];
       return { unreadByMatch: copy };
     }),
+
+ markMessageSeen: (matchId: string, messageId: string) => {
+  set((state) => {
+    const messages = state.messagesByMatch[matchId] ?? [];
+
+    const updated: Message[] = messages.map((m) =>
+      m.id === messageId
+        ? {
+            ...m,
+            status: "seen",
+            seenAt: new Date().toISOString(),
+          }
+        : m
+    );
+
+    return {
+      messagesByMatch: {
+        ...state.messagesByMatch,
+        [matchId]: updated,
+      },
+    } as Partial<ChatState>; // ✅ cast as Partial
+  });
+},
+
 
   /* =========================
      PRESENCE ACTIONS (NEW)

@@ -1,18 +1,5 @@
 import { io, Socket } from "socket.io-client";
 
-/**
- * ======================================================
- * GLOBAL SOCKET SINGLETON (BROWSER-LIFETIME DURABLE)
- *
- * WHY:
- * - Prevent multiple socket connections per user
- * - Survive Next.js re-renders, route changes, hot reloads
- * - Guarantee ONE socket per browser tab
- *
- * This is production-grade best practice.
- * ======================================================
- */
-
 declare global {
   // eslint-disable-next-line no-var
   var __appSocket: Socket | undefined;
@@ -21,39 +8,62 @@ declare global {
 export function getSocket(): Socket {
   /**
    * --------------------------------------------------
-   * REUSE EXISTING SOCKET (if already created)
+   * REUSE ONLY IF CONNECTED (CRITICAL FIX)
    * --------------------------------------------------
    */
   if (globalThis.__appSocket) {
-    console.log(
-      "♻️ [SOCKET FACTORY] Reusing EXISTING socket",
-      globalThis.__appSocket.id
+    const s = globalThis.__appSocket;
+
+    if (s.connected && s.id) {
+      console.log(
+        "♻️ [SOCKET FACTORY] Reusing CONNECTED socket",
+        s.id
+      );
+      return s;
+    }
+
+    console.warn(
+      "🧹 [SOCKET FACTORY] Found STALE socket — destroying",
+      {
+        connected: s.connected,
+        id: s.id,
+      }
     );
-    return globalThis.__appSocket;
+
+    s.removeAllListeners();
+    s.disconnect();
+    globalThis.__appSocket = undefined;
   }
 
   /**
    * --------------------------------------------------
-   * CREATE SOCKET (ONLY ONCE PER BROWSER)
+   * CREATE NEW SOCKET
    * --------------------------------------------------
    */
   console.log("🧠 [SOCKET FACTORY] Creating NEW socket instance");
 
+  // ❗ DO NOT read httpOnly cookies
+  // Auth comes from cookies automatically via withCredentials
   const socket = io("http://localhost:4000", {
     withCredentials: true,
-    transports: ["websocket"], // force stable transport
+    transports: ["websocket"],
   });
 
   /**
    * --------------------------------------------------
-   * LIFECYCLE LOGGING
-   * (Readable even years later)
+   * LIFECYCLE LOGS
    * --------------------------------------------------
    */
   socket.on("connect", () => {
     console.log("🟢 [SOCKET] CONNECTED", {
       socketId: socket.id,
       transport: socket.io.engine.transport.name,
+    });
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("❌ [SOCKET] CONNECT ERROR", {
+      message: err.message,
     });
   });
 
@@ -64,16 +74,11 @@ export function getSocket(): Socket {
     });
   });
 
-  socket.on("connect_error", (err) => {
-    console.error("❌ [SOCKET] CONNECT ERROR", err.message);
-  });
-
   /**
    * --------------------------------------------------
-   * STORE GLOBALLY (THE KEY FIX)
+   * STORE GLOBALLY
    * --------------------------------------------------
    */
   globalThis.__appSocket = socket;
-
   return socket;
 }

@@ -8,22 +8,24 @@ export function MessageBubble({ message, isMine, socket }: any) {
 
   const isDeleted = !!message.deletedAt;
 
+  // Debug (keep this while testing)
   console.log("🧩 [MessageBubble] render", {
     id: message.id,
+    senderId: message.senderId,
     isMine,
     isDeleted,
     content: message.content,
+    createdAt: message.createdAt,
     deliveredAt: message.deliveredAt,
     seenAt: message.seenAt,
   });
 
   /* ================= DELIVERED ================= */
   useEffect(() => {
-    if (!socket) return;
-    if (!socket.connected) return;
-    if (isMine) return;
+    if (!socket?.connected) return;
+    if (isMine) return;                 // ❗ never deliver your own message
     if (isDeleted) return;
-    if (!message.id) return;
+    if (!message.id) return;            // optimistic message
     if (message.deliveredAt) return;
     if (deliveredOnce.current) return;
 
@@ -32,15 +34,42 @@ export function MessageBubble({ message, isMine, socket }: any) {
     socket.emit("message:delivered", {
       id: message.id,
     });
-  }, [socket, isMine, isDeleted, message.id, message.deliveredAt]);
+  }, [
+    socket,
+    isMine,
+    isDeleted,
+    message.id,
+    message.deliveredAt,
+  ]);
 
   useEffect(() => {
     deliveredOnce.current = false;
   }, [message.id]);
 
+  /* ================= SEEN ================= */
+  useEffect(() => {
+    if (!socket?.connected) return;
+    if (isMine) return;                 // skip own messages
+    if (isDeleted) return;
+    if (!message.id) return;             // optimistic message
+    if (message.seenAt) return;          // already seen
+
+    socket.emit("message:seen", {
+      matchId: message.matchId,
+      messageId: message.id,
+    });
+  }, [
+    socket,
+    isMine,
+    isDeleted,
+    message.id,
+    message.seenAt,
+    message.matchId,
+  ]);
+
   /* ================= DELETE ================= */
   function handleDelete() {
-    if (!socket || !socket.connected) return;
+    if (!socket?.connected) return;
     if (!message.id) return;
 
     socket.emit("message:delete", {
@@ -50,6 +79,14 @@ export function MessageBubble({ message, isMine, socket }: any) {
 
   const isSending = isMine && !message.id;
   const isSent = isMine && message.id && !message.deliveredAt;
+
+  /* ================= TIME (SAFE) ================= */
+  const timeLabel = message.createdAt
+    ? new Date(message.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "—";
 
   /* ================= UI ================= */
   return (
@@ -61,29 +98,26 @@ export function MessageBubble({ message, isMine, socket }: any) {
           : "bg-blue-600 text-white mr-auto"
       )}
     >
-      {/* DELETED PLACEHOLDER */}
+      {/* CONTENT */}
       {isDeleted ? (
         <p className="italic opacity-60">Message deleted</p>
       ) : (
         message.content && <p>{message.content}</p>
       )}
 
-      {/* DELETE BUTTON */}
+      {/* DELETE BUTTON (ONLY YOUR MESSAGE) */}
       {isMine && message.id && !isDeleted && (
         <button
           onClick={handleDelete}
           className="absolute -top-2 -right-2 text-xs bg-red-700 text-white rounded-full px-2"
         >
-          
+          delete
         </button>
       )}
 
       {/* TIME */}
       <div className="text-[10px] opacity-70 mt-0.5 text-right">
-        {new Date(message.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
+        {timeLabel}
       </div>
 
       {/* STATUS (ONLY YOUR MESSAGES) */}
