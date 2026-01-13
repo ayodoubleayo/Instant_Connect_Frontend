@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /* =========================
    STATIC DATA
@@ -28,35 +28,52 @@ const EXTRA_IMAGES = [
 ];
 
 export default function Home() {
+  const welcomeRef = useRef<HTMLDivElement>(null);
+  const [showReferral, setShowReferral] = useState(false);
+
+  // IntersectionObserver to show referral box after welcome scrolls out
   useEffect(() => {
-    console.log("🟢 [Home] PAGE MOUNTED");
-    return () => console.log("🏁 [Home] PAGE UNMOUNTED");
+    if (!welcomeRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowReferral(!entry.isIntersecting); // show when welcome is NOT visible
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(welcomeRef.current);
+
+    return () => observer.disconnect();
   }, []);
 
   return (
     <>
       {/* ================= REFERRAL MESSAGE ================= */}
-      <motion.div
-        className="fixed top-14 right-6 bg-blue-500 text-white rounded-2xl shadow-xl px-6 py-4 z-30 cursor-pointer hover:bg-blue-600 transition max-w-xs"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="font-semibold text-lg">GIVEAWAY TIME!</div>
-        <ul className="text-sm mt-2 space-y-1">
-          <li>Refer 10 people → Instant #2000 transfer 💸</li>
-          <li>Refer 30 people → 1 full refill Peak Milk 🥛</li>
-          <li>Refer 50 people → 1 Carton of Indomie 🍜</li>
-          <li className="mt-1 text-xs">Each user will be verified. Age 18–100 welcome ✅</li>
-          <li className="mt-1 text-xs bg-red-500 px-1 rounded">Send admin your account number through contact above</li>
-        </ul>
-      </motion.div>
+      {showReferral && (
+        <motion.div
+          className="fixed top-14 right-4 bg-blue-500 text-white rounded-2xl shadow-xl px-6 py-4 z-30 cursor-pointer hover:bg-blue-600 transition max-w-xs"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="font-semibold text-lg">GIVEAWAY TIME!</div>
+          <ul className="text-sm mt-2 space-y-1">
+            <li>Refer 10 people → Instant #2000 transfer 💸</li>
+            <li>Refer 30 people → 1 full refill Peak Milk 🥛</li>
+            <li>Refer 50 people → 1 Carton of Indomie 🍜</li>
+            <li className="mt-1 text-xs">Each user will be verified. Age 18–100 welcome ✅</li>
+            <li className="mt-1 text-xs bg-red-500 px-1 rounded">Send admin your account number through contact above</li>
+          </ul>
+        </motion.div>
+      )}
 
       {/* ================= HERO SECTION ================= */}
       <section className="flex flex-col items-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-6 py-12 space-y-12">
 
         {/* ===== WELCOME CARD ===== */}
         <motion.div
+          ref={welcomeRef}
           className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 max-w-3xl text-center"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
