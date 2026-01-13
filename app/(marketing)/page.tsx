@@ -8,20 +8,21 @@ import { useEffect } from "react";
 /**
  * Home Page
  *
- * FLOW (LONG-TERM TRACEABLE):
+ * LIFECYCLE TRACE:
  * module load
  * → mount
  * → SEO content rendered
- * → intents prepared
  * → UI rendered
- * → CTA ready
  * → idle
  * → unmount
  */
 
 console.log("📦 [Home] MODULE LOADED");
 
-const intents = [
+/* =========================
+   STATIC DATA (STABLE)
+========================= */
+const INTENTS = [
   { label: "💍 Marriage", desc: "Looking for a life partner" },
   { label: "❤️ Serious", desc: "Meaningful long-term relationship" },
   { label: "💬 Casual", desc: "Dating & getting to know people" },
@@ -29,43 +30,38 @@ const intents = [
 ];
 
 export default function Home() {
+  /* =========================
+     LIFECYCLE EFFECT
+  ========================= */
   useEffect(() => {
     console.log("🟢 [Home] PAGE MOUNTED");
 
     console.log(
-      "📌 [Home] Primary intents prepared:",
-      intents.map((i) => i.label)
+      "📌 [Home] Primary intents:",
+      INTENTS.map((i) => i.label)
     );
 
-    console.log("🔍 [Home][SEO] Secondary searchable intents declared:");
-    console.log([
-      "Friends with benefits",
-      "Adult student partner",
-      "Gym partner",
-      "Walk partner",
-      "Travel partner",
-      "Prayer partner",
-      "Reading partner",
-      "Emotional support partner",
-    ]);
+    console.log("🔍 [Home][SEO] Secondary searchable intents registered");
 
-    console.log("🧠 [Home] Waiting for user interaction (idle)");
+    console.log("🧠 [Home] Idle — waiting for user interaction");
 
     return () => {
       console.log("🏁 [Home] PAGE UNMOUNTED");
     };
   }, []);
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <>
-      {/* 🔒 SEO TEXT BLOCK */}
+      {/* ================= SEO (HIDDEN) ================= */}
       <section className="sr-only" aria-hidden="true">
         <h1>InstantConnect Dating Platform</h1>
         <p>
           InstantConnect is a modern dating and social connection platform
           designed for people seeking marriage, serious relationships, casual
-          dating, one-night connections, friends with benefits, adult student
-          partners, gym partners, travel partners, and emotional support.
+          dating, short-term connections, and meaningful companionship.
         </p>
 
         <ul>
@@ -84,7 +80,7 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* 👁️ VISIBLE UI */}
+      {/* ================= VISIBLE UI ================= */}
       <section
         className="
           min-h-[calc(100vh-80px)]
@@ -96,13 +92,13 @@ export default function Home() {
       >
         <div className="mx-auto w-full max-w-7xl px-6 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
 
-          {/* LEFT */}
+          {/* ===== LEFT CONTENT ===== */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             onAnimationComplete={() =>
-              console.log("🎬 [Home] Left content animation complete")
+              console.log("🎬 [Home] Left content animation done")
             }
           >
             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-gray-900">
@@ -117,7 +113,7 @@ export default function Home() {
               respectful connection.
             </p>
 
-            {/* INTENTS */}
+            {/* ===== INTENT CARDS ===== */}
             <motion.div
               className="grid grid-cols-2 gap-6 mb-12"
               initial="hidden"
@@ -126,13 +122,10 @@ export default function Home() {
                 hidden: {},
                 visible: { transition: { staggerChildren: 0.1 } },
               }}
-              onAnimationComplete={() =>
-                console.log("📦 [Home] Intent cards rendered")
-              }
             >
-              {intents.map((i) => (
+              {INTENTS.map((intent) => (
                 <motion.div
-                  key={i.label}
+                  key={intent.label}
                   variants={{
                     hidden: { opacity: 0, y: 16 },
                     visible: { opacity: 1, y: 0 },
@@ -149,16 +142,16 @@ export default function Home() {
                   "
                 >
                   <div className="font-semibold text-gray-900">
-                    {i.label}
+                    {intent.label}
                   </div>
                   <div className="text-gray-500 text-sm mt-1">
-                    {i.desc}
+                    {intent.desc}
                   </div>
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* CTA */}
+            {/* ===== CTA ===== */}
             <div className="flex flex-col sm:flex-row gap-5 max-w-lg">
               <Link
                 href="/auth/register"
@@ -194,14 +187,14 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* RIGHT */}
+          {/* ===== RIGHT IMAGE ===== */}
           <motion.div
             className="flex justify-center"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
             onAnimationComplete={() =>
-              console.log("🖼️ [Home] Hero image rendered")
+              console.log("🖼️ [Home] Hero image visible")
             }
           >
             <div className="relative">
@@ -233,8 +226,6 @@ export default function Home() {
 
         </div>
       </section>
-
-      {console.log("✅ [Home] PAGE RENDER COMPLETE")}
     </>
   );
 }
