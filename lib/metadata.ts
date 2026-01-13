@@ -12,7 +12,7 @@ import { Metadata } from "next";
 
 const SITE_URL = "https://instantconnect.jaodr.com";
 const SITE_NAME = "InstantConnect";
-const DEFAULT_IMAGE = `${SITE_URL}/hero.jpg`;
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 type MetadataConfig = {
   title: string;
@@ -117,7 +117,7 @@ export function generateIntentMetadata(
     description,
     keywords,
     path: `/intent/${slug}`,
-    image: `${SITE_URL}/intent/${slug}-hero.jpg`, // Create these later
+    image: `${SITE_URL}/intent/${slug}-og.jpg`, // Create these later
   });
 }
 

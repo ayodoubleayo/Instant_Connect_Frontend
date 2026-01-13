@@ -211,8 +211,8 @@ export default function Home() {
               <Image
                 src="/hero.jpg"
                 alt="InstantConnect dating and relationship platform"
-                width={520}
-                height={520}
+                width={700}
+                height={700}
                 priority
                 className="
                   relative

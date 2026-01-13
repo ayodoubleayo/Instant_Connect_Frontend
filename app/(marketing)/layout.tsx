@@ -2,6 +2,7 @@ import Script from "next/script";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import AnalyticsPageTracker from "@/components/AnalyticsPageTracker";
 import "@/app/globals.css";
+import { Analytics } from '@vercel/analytics/react';
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,6 +20,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         `}
       </Script>
       {children}
+              <Analytics />
+
       <AnalyticsPageTracker />
     </>
   );
