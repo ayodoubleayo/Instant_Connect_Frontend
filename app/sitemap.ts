@@ -1,138 +1,145 @@
 import { MetadataRoute } from "next";
 
 /**
- * Sitemap
+ * Sitemap - PRODUCTION READY
  *
- * PURPOSE:
- * - Tell search engines which pages matter
- * - Define priority & update frequency
- * - Accelerate correct indexing
+ * CRITICAL CHANGES:
+ * - ✅ Fixed domain to instantconnect.jaodr.com
+ * - ✅ Added /privacy, /terms (Google Trust Signals)
+ * - ✅ Dynamic lastModified for intent pages
+ * - ✅ Optimized priorities based on conversion value
  *
- * FLOW (CRAWLER):
- * Google → /sitemap.xml → URL discovery → crawl → index → rank
- *
- * MAINTENANCE RULE (IMPORTANT):
- * - Every NEW public intent page MUST be added here
- * - NEVER add auth, chat, inbox, profile, or admin routes
+ * FLOW:
+ * Google → /sitemap.xml → crawl priority pages → index → rank
  */
 
+const SITE_URL = "https://instantconnect.jaodr.com";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  console.log("🗺️ [sitemap] Sitemap requested by crawler");
-  console.log("📌 [sitemap] Generating public, indexable URLs only");
+  console.log("🗺️ [sitemap] Generating sitemap for:", SITE_URL);
 
-  const baseUrl = "https://instantconnect.com"; // change when live
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const urls: MetadataRoute.Sitemap = [
-    // 🌍 CORE PUBLIC PAGES
+  return [
+    // 🌍 CORE PAGES (Highest Priority)
     {
-      url: `${baseUrl}/`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/`,
+      lastModified: now,
       changeFrequency: "daily",
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/discover`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/discover`,
+      lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     },
+
+    // 📄 TRUST/LEGAL PAGES (Required by Google)
     {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
+      url: `${SITE_URL}/privacy`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/terms`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/about`,
+      lastModified: now,
+      changeFrequency: "monthly",
       priority: 0.4,
     },
 
-    // 💍 RELATIONSHIP / DATING INTENTS
+    // 💍 RELATIONSHIP INTENTS (High Conversion)
     {
-      url: `${baseUrl}/intent/marriage`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/intent/marriage`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.95, // Boosted - highest intent
+    },
+    {
+      url: `${SITE_URL}/intent/serious`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/intent/casual`,
+      lastModified: weekAgo,
       changeFrequency: "weekly",
       priority: 0.85,
     },
+
+    // 🏃 ACTIVITY PARTNERS (Medium Priority)
     {
-      url: `${baseUrl}/intent/serious`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/intent/walk-partner`,
+      lastModified: weekAgo,
       changeFrequency: "weekly",
-      priority: 0.85,
+      priority: 0.75,
     },
     {
-      url: `${baseUrl}/intent/casual`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/intent/gym-partner`,
+      lastModified: weekAgo,
       changeFrequency: "weekly",
-      priority: 0.8,
+      priority: 0.75,
+    },
+    {
+      url: `${SITE_URL}/intent/reading-partner`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/intent/travel-partner`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.78,
+    },
+    {
+      url: `${SITE_URL}/intent/clubbing-partner`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.72,
     },
 
-    // 🏃 ACTIVITY PARTNERS
+    // 🧑‍🤝‍🧑 SOCIAL/COMPANIONSHIP
     {
-      url: `${baseUrl}/intent/walk-partner`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.75,
-    },
-    {
-      url: `${baseUrl}/intent/gym-partner`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.75,
-    },
-    {
-      url: `${baseUrl}/intent/reading-partner`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/intent/gist-partner`,
+      lastModified: weekAgo,
       changeFrequency: "weekly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/intent/travel-partner`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.75,
-    },
-    {
-      url: `${baseUrl}/intent/clubbing-partner`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/intent/laughter-partner`,
+      lastModified: weekAgo,
       changeFrequency: "weekly",
       priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/intent/crying-partner`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.68,
+    },
+    {
+      url: `${SITE_URL}/intent/street-friend`,
+      lastModified: weekAgo,
+      changeFrequency: "weekly",
+      priority: 0.72,
     },
 
-    // 🧑‍🤝‍🧑 SOCIAL / COMPANIONSHIP
+    // 🙏 FAITH/SPIRITUAL
     {
-      url: `${baseUrl}/intent/gist-partner`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/intent/laughter-partner`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/intent/crying-partner`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/intent/praying-partner`,
+      lastModified: weekAgo,
       changeFrequency: "weekly",
       priority: 0.65,
     },
-    {
-      url: `${baseUrl}/intent/street-friend`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-
-    // 🙏 FAITH / LIFE
-    {
-      url: `${baseUrl}/intent/praying-partner`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
   ];
-
-  console.log("✅ [sitemap] Public URLs prepared:", urls.length);
-  console.log("🎯 [sitemap] Intent clusters fully indexed");
-  console.log("🚫 [sitemap] Private routes excluded by design");
-
-  return urls;
 }

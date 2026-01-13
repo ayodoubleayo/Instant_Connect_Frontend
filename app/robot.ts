@@ -1,45 +1,55 @@
 import { MetadataRoute } from "next";
 
 /**
- * Robots.txt
+ * Robots.txt - PRODUCTION READY
  *
- * PURPOSE:
- * - Define what search engines can crawl
- * - Protect private/authenticated areas
- * - Expose public marketing & SEO pages
- *
- * FLOW (SERVER / CRAWLER):
- * crawler request → robots generation → rules returned → sitemap linked
+ * CRITICAL CHANGES:
+ * - ✅ Fixed sitemap URL to instantconnect.jaodr.com
+ * - ✅ Added crawl-delay for politeness
+ * - ✅ Explicitly allowed /intent/* for SEO juice
+ * - ✅ Blocked API routes and internal paths
  */
 
 export default function robots(): MetadataRoute.Robots {
-  console.log("🤖 [robots] robots.txt requested by crawler");
-  console.log("📌 [robots] Preparing crawl rules for public visibility");
-  console.log("🔒 [robots] Blocking private/authenticated areas");
-
-  const rules: MetadataRoute.Robots["rules"] = [
-    {
-      userAgent: "*",
-
-      // ✅ Public, SEO-valuable pages
-      allow: ["/", "/discover", "/about"],
-
-      // 🔒 Private / user-specific / sensitive
-      disallow: [
-        "/auth",
-        "/chat",
-        "/profile",
-        "/admin",
-        "/payment",
-      ],
-    },
-  ];
-
-  console.log("🧭 [robots] Crawl rules prepared:", rules);
-  console.log("🗺️ [robots] Sitemap reference attached");
-
   return {
-    rules,
-    sitemap: "https://instantconnect.com/sitemap.xml", // update when live
+    rules: [
+      {
+        userAgent: "*",
+        
+        // ✅ ALLOW: Public SEO pages
+        allow: [
+          "/",
+          "/discover",
+          "/about",
+          "/privacy",
+          "/terms",
+          "/intent/*", // CRITICAL: Allow all intent pages
+        ],
+        
+        // 🔒 DISALLOW: Private/sensitive areas
+        disallow: [
+          "/api/*",        // Backend routes
+          "/auth/*",       // Login/register
+          "/chat/*",       // Private messages
+          "/profile/*",    // User profiles
+          "/admin/*",      // Admin panel
+          "/payment/*",    // Billing
+          "/_next/*",      // Next.js internals
+          "/static/*",     // Build artifacts
+        ],
+        
+        // ⏱️ Crawl delay (be polite to your server)
+        crawlDelay: 1,
+      },
+      
+      // 🤖 Special rules for aggressive bots
+      {
+        userAgent: ["GPTBot", "ChatGPT-User"],
+        disallow: ["/"], // Block AI scrapers
+      },
+    ],
+    
+    // 🗺️ Sitemap reference
+    sitemap: "https://instantconnect.jaodr.com/sitemap.xml",
   };
 }
