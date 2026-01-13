@@ -21,7 +21,7 @@ export default function ImageUploader({
     setLoading(true);
 
     const form = new FormData();
-    form.append("image", file);
+form.append("photo", file);
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/upload`,
