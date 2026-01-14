@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useUserStore } from "@/store/user.store";
 import { useChatStore } from "@/store/chat.store";
+import Image from "next/image";
+
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -62,15 +64,23 @@ export default function Navbar() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* 🔥 LOGO */}
-        <Link
-          href="/"
-          className="flex items-center gap-3 font-extrabold tracking-tight"
-        >
-          <span className="text-4xl text-red-600 leading-none">●</span>
-          <span className="text-3xl md:text-4xl text-gray-900 leading-none">
-            Instant<span className="text-red-600">Connect</span>
-          </span>
-        </Link>
+
+<Link
+  href="/"
+  className="flex items-center gap-3 font-extrabold tracking-tight"
+>
+  <Image
+    src="/icons/icon-72x72.png"
+    alt="InstantConnect logo"
+    width={100}
+    height={100}
+    className="rounded-md"
+  />
+
+  <span className="text-3xl md:text-4xl text-gray-900 leading-none">
+    Instant<span className="text-red-600">Connect</span>
+  </span>
+</Link>
 
         {/* DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-6">
