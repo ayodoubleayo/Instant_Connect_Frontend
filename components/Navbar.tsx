@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useUserStore } from "@/store/user.store";
 import { useChatStore } from "@/store/chat.store";
 import Image from "next/image";
-
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -19,11 +18,13 @@ const navLinks = [
 ];
 
 const CONTACT_LINK = "https://wa.me/2348064520832";
+const SWIPE_THRESHOLD = 50;
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
+  const startY = useRef<number | null>(null);
 
+  const router = useRouter();
   const { me, hydrated, fetchMe, clear } = useUserStore();
   const unreadByMatch = useChatStore((s) => s.unreadByMatch);
 
@@ -47,8 +48,36 @@ export default function Navbar() {
     }
   }
 
+  /* =====================
+     SWIPE HANDLERS
+  ===================== */
+  const onTouchStart = (e: React.TouchEvent) => {
+    startY.current = e.touches[0].clientY;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (startY.current === null) return;
+
+    const endY = e.changedTouches[0].clientY;
+    const deltaY = endY - startY.current;
+
+    if (deltaY > SWIPE_THRESHOLD) {
+      // swipe down → open
+      setOpen(true);
+    }
+
+    if (deltaY < -SWIPE_THRESHOLD) {
+      // swipe up → close
+      setOpen(false);
+    }
+
+    startY.current = null;
+  };
+
   return (
     <nav
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       className="
         sticky top-0 z-50 w-full
         bg-white/85 backdrop-blur
@@ -63,24 +92,23 @@ export default function Navbar() {
       }}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        {/* 🔥 LOGO */}
+        {/* LOGO */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 font-extrabold tracking-tight"
+        >
+          <Image
+            src="/icons/icon-72x72.png"
+            alt="InstantConnect logo"
+            width={48}
+            height={48}
+            className="rounded-md"
+          />
 
-<Link
-  href="/"
-  className="flex items-center gap-3 font-extrabold tracking-tight"
->
-  <Image
-    src="/icons/icon-72x72.png"
-    alt="InstantConnect logo"
-    width={100}
-    height={100}
-    className="rounded-md"
-  />
-
-  <span className="text-3xl md:text-4xl text-gray-900 leading-none">
-    Instant<span className="text-red-600">Connect</span>
-  </span>
-</Link>
+          <span className="text-3xl md:text-4xl text-gray-900 leading-none">
+            Instant<span className="text-red-600">Connect</span>
+          </span>
+        </Link>
 
         {/* DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-6">
@@ -88,17 +116,7 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="
-                relative
-                text-gray-700 font-medium
-                transition-all duration-200
-                hover:text-red-600 hover:scale-105
-                after:absolute after:left-0 after:-bottom-1
-                after:h-[2px] after:w-0
-                after:bg-red-600
-                after:transition-all after:duration-300
-                hover:after:w-full
-              "
+              className="relative text-gray-700 font-medium hover:text-red-600 transition"
             >
               {l.label}
 
@@ -119,49 +137,36 @@ export default function Navbar() {
             Contact
           </a>
 
-          {me && (
-            <Link
-              href="/feedback"
-              className="text-gray-700 hover:text-red-600 transition"
-            >
-              Feedback
-            </Link>
-          )}
-
-          {me?.role === "ADMIN" && (
-            <Link href="/admin" className="font-semibold text-gray-900">
-              Admin
-            </Link>
-          )}
-
-          {me && (
-            <button
-              onClick={logout}
-              className="font-semibold text-gray-800 hover:text-red-600 transition"
-            >
-              Logout
-            </button>
-          )}
+          {me && <Link href="/feedback">Feedback</Link>}
+          {me?.role === "ADMIN" && <Link href="/admin">Admin</Link>}
+          {me && <button onClick={logout}>Logout</button>}
         </div>
 
         {/* MOBILE TOGGLE */}
         <button
           className="md:hidden rounded-lg border border-gray-300 px-3 py-2"
-          onClick={() => setOpen(!open)}
+          onClick={() => setOpen((o) => !o)}
         >
           ☰
         </button>
       </div>
 
       {/* MOBILE MENU */}
-      {open && (
-        <div className="md:hidden border-t bg-white px-6 py-4 space-y-4">
+      <div
+        className={`
+          md:hidden
+          overflow-hidden
+          transition-all duration-300 ease-out
+          ${open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}
+        `}
+      >
+        <div className="border-t bg-white px-6 py-4 space-y-4">
           {navLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="block text-gray-800 font-medium hover:text-red-600 transition"
+              className="block text-gray-800 font-medium"
             >
               {l.label}
               {l.label === "Chat" && totalUnread > 0 && (
@@ -172,42 +177,15 @@ export default function Navbar() {
             </Link>
           ))}
 
-          <a
-            href={CONTACT_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className="block text-gray-800 font-medium hover:text-red-600 transition"
-          >
+          <a href={CONTACT_LINK} className="block">
             Contact
           </a>
 
-          {me && (
-            <Link
-              href="/feedback"
-              onClick={() => setOpen(false)}
-              className="block text-gray-800 hover:text-red-600 transition"
-            >
-              Feedback
-            </Link>
-          )}
-
-          {me?.role === "ADMIN" && (
-            <Link href="/admin" className="block font-semibold">
-              Admin
-            </Link>
-          )}
-
-          {me && (
-            <button
-              onClick={logout}
-              className="block w-full text-left font-semibold text-gray-800 hover:text-red-600 transition"
-            >
-              Logout
-            </button>
-          )}
+          {me && <Link href="/feedback">Feedback</Link>}
+          {me?.role === "ADMIN" && <Link href="/admin">Admin</Link>}
+          {me && <button onClick={logout}>Logout</button>}
         </div>
-      )}
+      </div>
     </nav>
   );
 }
