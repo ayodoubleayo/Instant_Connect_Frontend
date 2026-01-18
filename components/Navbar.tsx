@@ -180,10 +180,35 @@ export default function Navbar() {
           <a href={CONTACT_LINK} className="block">
             Contact
           </a>
+{me && (
+  <Link
+    href="/feedback"
+    onClick={() => setOpen(false)}
+    className="block w-full text-gray-800 font-medium"
+  >
+    Feedback
+  </Link>
+)}
 
-          {me && <Link href="/feedback">Feedback</Link>}
-          {me?.role === "ADMIN" && <Link href="/admin">Admin</Link>}
-          {me && <button onClick={logout}>Logout</button>}
+{me?.role === "ADMIN" && (
+  <Link
+    href="/admin"
+    onClick={() => setOpen(false)}
+    className="block w-full text-gray-800 font-medium"
+  >
+    Admin
+  </Link>
+)}
+
+{me && (
+  <button
+    onClick={logout}
+    className="block w-full text-left text-gray-800 font-medium"
+  >
+    Logout
+  </button>
+)}
+
         </div>
       </div>
     </nav>

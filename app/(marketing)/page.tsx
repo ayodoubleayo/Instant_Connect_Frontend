@@ -24,9 +24,19 @@ const EXTRA_IMAGES = [
   { src: "/extra6.jpg", alt: "Outdoor adventure", label: "❤️ Serious", desc: "Shared adventures" },
 ];
 
+/* =========================
+   SKELETON CARD
+========================= */
+function ImageSkeleton() {
+  return (
+    <div className="animate-pulse rounded-2xl bg-gray-200 h-[260px] w-full" />
+  );
+}
+
 export default function Home() {
   const welcomeRef = useRef<HTMLDivElement>(null);
   const [showReferral, setShowReferral] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     if (!welcomeRef.current) return;
@@ -41,33 +51,26 @@ export default function Home() {
   }, []);
 
   return (
-    /* ================= OUTER BACKGROUND ================= */
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-white p-4 sm:p-6">
-
-      {/* ================= OUTSET PAGE FRAME ================= */}
       <div
         className="min-h-full rounded-3xl border-[10px] shadow-2xl bg-white"
-        style={{
-          borderStyle: "outset",
-          borderColor: "#f9a8d4", // pink-300
-        }}
+        style={{ borderStyle: "outset", borderColor: "#f9a8d4" }}
       >
 
-        {/* ================= REFERRAL MESSAGE ================= */}
+        {/* ================= REFERRAL ================= */}
         {showReferral && (
           <motion.div
-            className="fixed top-30 right-6 bg-blue-500 text-white rounded-2xl shadow-xl px-6 py-4 z-30 max-w-xs"
+            className="fixed top-24 right-6 bg-blue-500 text-white rounded-2xl shadow-xl px-6 py-4 z-30 max-w-xs"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="font-semibold text-lg">GIVEAWAY TIME!</div>
             <ul className="text-sm mt-2 space-y-1">
-              <li>Refer 10 people → ₦2000 transfer 💸</li>
+              <li>Refer 10 people → ₦2000 💸</li>
               <li>Refer 30 people → Peak Milk 🥛</li>
-              
-              <li>Refer 50 people → Indomie Carton 🍜</li>
-              <li className="text-xs mt-1">Age 18–100 welcome ✅</li>
-                            <li className="text-xs bg-red-500 mt-1">Contact for your reward ✅</li>
+              <li>Refer 50 people → Indomie 🍜</li>
+              <li className="text-xs">Age 18–100 welcome ✅</li>
+                            <li className="text-xs">USE CONTACT ABOVE TO CLAIM YOUR GIFT ✅</li>
 
             </ul>
           </motion.div>
@@ -76,33 +79,23 @@ export default function Home() {
         {/* ================= CONTENT ================= */}
         <section className="flex flex-col items-center px-6 py-12 space-y-12">
 
-          {/* ===== WELCOME CARD ===== */}
+          {/* ===== WELCOME ===== */}
           <motion.div
             ref={welcomeRef}
-            className="
-              rounded-3xl
-              p-8
-              max-w-3xl
-              text-center
-              bg-gradient-to-br from-pink-100 via-pink-50 to-white
-              border-2 border-pink-300
-              shadow-2xl shadow-pink-300/50
-            "
+            className="rounded-3xl p-8 max-w-3xl text-center bg-gradient-to-br from-pink-100 via-pink-50 to-white border-2 border-pink-300 shadow-2xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-500 to-red-600">
               Welcome to InstantConnect
             </h1>
-            <p className="text-gray-700 text-lg">
+
+            <p className="text-gray-700 text-lg mt-4">
               Discover meaningful relationships, real connections, and clear intentions.
-              Whether you want marriage, serious dating, or a respectful connection —
-              InstantConnect is built for you.
             </p>
           </motion.div>
 
-          {/* ===== EXTRA IMAGES ===== */}
+          {/* ===== EXTRA IMAGES (LAZY + SKELETON) ===== */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl">
             {EXTRA_IMAGES.map((img, i) => (
               <motion.div
@@ -113,29 +106,40 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
                 className="relative rounded-2xl overflow-hidden shadow-lg"
               >
+                {!loadedImages[i] && <ImageSkeleton />}
+
                 <Image
                   src={img.src}
                   alt={img.alt}
                   width={400}
                   height={400}
-                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onLoad={() =>
+                    setLoadedImages((prev) => ({ ...prev, [i]: true }))
+                  }
+                  className={`w-full h-full object-cover transition-opacity duration-500 ${
+                    loadedImages[i] ? "opacity-100" : "opacity-0 absolute inset-0"
+                  }`}
                 />
-                <div className="absolute bottom-0 left-0 w-full bg-black/60 p-3">
-                  <div className="text-pink-300 font-bold">{img.label}</div>
-                  <div className="text-white text-xs">{img.desc}</div>
-                </div>
+
+                {loadedImages[i] && (
+                  <div className="absolute bottom-0 left-0 w-full bg-black/60 p-3">
+                    <div className="text-pink-300 font-bold">{img.label}</div>
+                    <div className="text-white text-xs">{img.desc}</div>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
 
-          {/* ===== INTENT CARDS ===== */}
+          {/* ===== INTENTS ===== */}
           <div className="grid grid-cols-2 gap-6 max-w-4xl w-full">
             {INTENTS.map((intent) => (
               <div
                 key={intent.label}
-                className="bg-white rounded-2xl p-5 text-center shadow-md border hover:shadow-lg transition"
+                className="bg-white rounded-2xl p-5 text-center shadow-md border"
               >
-                <div className="text-pink-500 font-bold text-lg">{intent.label}</div>
+                <div className="text-pink-500 font-bold">{intent.label}</div>
                 <div className="text-gray-500 text-sm">{intent.desc}</div>
               </div>
             ))}
@@ -143,28 +147,23 @@ export default function Home() {
 
           {/* ===== CTA ===== */}
           <div className="bg-white rounded-2xl shadow-lg border p-6 flex gap-5 flex-col sm:flex-row">
-            <Link
-              href="/auth/register"
-              className="flex-1 rounded-2xl bg-gray-900 px-8 py-4 text-white text-lg font-semibold text-center"
-            >
+            <Link href="/auth/register" className="flex-1 rounded-2xl bg-gray-900 px-8 py-4 text-white text-lg font-semibold text-center">
               Get Started
             </Link>
 
-            <Link
-              href="/auth/login"
-              className="flex-1 rounded-2xl border px-8 py-4 text-gray-700 text-lg font-medium text-center"
-            >
+            <Link href="/auth/login" className="flex-1 rounded-2xl border px-8 py-4 text-gray-700 text-lg text-center">
               Sign in
             </Link>
           </div>
 
-          {/* ===== HERO IMAGE ===== */}
+          {/* ===== HERO IMAGE (PRIORITY) ===== */}
           <div className="w-full flex justify-center mt-12">
             <Image
               src="/hero.jpg"
               alt="InstantConnect hero"
               width={1200}
               height={700}
+              priority
               className="rounded-3xl shadow-2xl w-full max-w-3xl object-cover"
             />
           </div>

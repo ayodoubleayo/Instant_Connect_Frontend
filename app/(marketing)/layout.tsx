@@ -3,7 +3,6 @@ import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import AnalyticsPageTracker from "@/components/AnalyticsPageTracker";
 import "@/app/globals.css";
 import { Analytics } from "@vercel/analytics/react";
-import PWAInstallBanner from "@/components/PWAInstallBanner";
 
 export default function MarketingLayout({
   children,
@@ -49,7 +48,6 @@ export default function MarketingLayout({
 
       {/* ================= APP CONTENT ================= */}
       {children}
-  <PWAInstallBanner />
 
       {/* ================= ANALYTICS ================= */}
       <Analytics />
