@@ -29,11 +29,12 @@ export default function LoginPage() {
       if (!cancelled) setCheckingSession(false);
     }, 8000);
 
-    api("/users/me")
-      .then(async () => {
-        await fetchMe();
-        router.replace("/discover");
-      })
+  api("/users/me")
+  .then(async () => {
+    await fetchMe();
+    setCheckingSession(false); // ✔️ JUST STOP LOADING
+  })
+
       .catch(() => {
         setCheckingSession(false);
       })
