@@ -14,6 +14,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👁️ added
 
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -29,12 +30,11 @@ export default function LoginPage() {
       if (!cancelled) setCheckingSession(false);
     }, 8000);
 
-  api("/users/me")
-  .then(async () => {
-    await fetchMe();
-    setCheckingSession(false); // ✔️ JUST STOP LOADING
-  })
-
+    api("/users/me")
+      .then(async () => {
+        await fetchMe();
+        setCheckingSession(false);
+      })
       .catch(() => {
         setCheckingSession(false);
       })
@@ -92,22 +92,17 @@ export default function LoginPage() {
       bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"
     >
       <div className="w-full max-w-md">
-
         <div className="bg-white rounded-3xl shadow-xl border border-white/60
           p-8 space-y-8"
         >
-
-
           {/* Access Explanation */}
-<div className="rounded-2xl bg-indigo-50 border border-indigo-100 p-4 text-sm text-gray-700">
-  <p className="font-medium text-gray-900 mb-1">
-    🔒 Private community
-  </p>
-  <p>
-    InstantConnect is a private space.  
-    You need to sign in to view profiles, matches, and messages.
-  </p>
-</div>
+          <div className="rounded-2xl bg-indigo-50 border border-indigo-100 p-4 text-sm text-gray-700">
+            <p className="font-medium text-gray-900 mb-1">🔒 Private community</p>
+            <p>
+              InstantConnect is a private space.  
+              You need to sign in to view profiles, matches, and messages.
+            </p>
+          </div>
 
           {/* Header */}
           <div className="text-center space-y-2">
@@ -148,23 +143,39 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* Password with toggle */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-gray-600">
                 Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="
-                  w-full rounded-xl border border-gray-300
-                  px-4 py-3 text-sm
-                  focus:outline-none focus:ring-2
-                  focus:ring-black/20 focus:border-black
-                  transition
-                "
-              />
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="
+                    w-full rounded-xl border border-gray-300
+                    px-4 py-3 pr-12 text-sm
+                    focus:outline-none focus:ring-2
+                    focus:ring-black/20 focus:border-black
+                    transition
+                  "
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="
+                    absolute right-3 top-1/2 -translate-y-1/2
+                    text-xs text-gray-500 hover:text-black
+                    select-none
+                  "
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -177,15 +188,14 @@ export default function LoginPage() {
           </div>
 
           {loading && (
-  <div className="flex items-center justify-center gap-3 text-sm text-gray-600">
-    <div
-      className="h-4 w-4 animate-spin rounded-full border-2
-      border-black border-t-transparent"
-    />
-    <span>Signing you in, please wait…</span>
-  </div>
-)}
-
+            <div className="flex items-center justify-center gap-3 text-sm text-gray-600">
+              <div
+                className="h-4 w-4 animate-spin rounded-full border-2
+                border-black border-t-transparent"
+              />
+              <span>Signing you in, please wait…</span>
+            </div>
+          )}
 
           {/* Submit */}
           <button
