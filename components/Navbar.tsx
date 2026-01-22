@@ -110,7 +110,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* DESKTOP NAV */}
+      
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((l) => (
             <Link
