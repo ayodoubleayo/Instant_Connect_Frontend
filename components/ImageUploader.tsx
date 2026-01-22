@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useRef, useState } from "react";
+
+interface ImageUploaderProps {
+  onUpload: (url: string) => void;
+  onUploading?: (preview: string | null) => void;
+  children?: ReactNode;
+}
 
 export default function ImageUploader({
   onUpload,
   onUploading,
-}: {
-  onUpload: (url: string) => void;
-  onUploading?: (preview: string | null) => void;
-}) {
+  children,
+}: ImageUploaderProps) {
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   async function upload(file: File) {
     if (!file) return;
@@ -21,7 +26,7 @@ export default function ImageUploader({
     setLoading(true);
 
     const form = new FormData();
-form.append("photo", file);
+    form.append("photo", file);
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/upload`,
@@ -41,12 +46,36 @@ form.append("photo", file);
     setLoading(false);
   }
 
+  function openPicker() {
+    if (!loading) {
+      inputRef.current?.click();
+    }
+  }
+
   return (
-    <input
-      type="file"
-      accept="image/*"
-      disabled={loading}
-      onChange={(e) => upload(e.target.files![0])}
-    />
+    <>
+      {/* Hidden real input */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        disabled={loading}
+        onChange={(e) => upload(e.target.files![0])}
+      />
+
+      {/* Clickable trigger */}
+      <div onClick={openPicker}>
+        {children ?? (
+          <button
+            type="button"
+            disabled={loading}
+            className="px-4 py-2 bg-black text-white rounded disabled:opacity-60"
+          >
+            Upload photo
+          </button>
+        )}
+      </div>
+    </>
   );
 }

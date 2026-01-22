@@ -45,7 +45,7 @@ export default function EditPhotosPage() {
               </span>
             </h2>
             <span className="text-xs text-gray-400">
-              Tap image to set profile photo
+              CHOOSE PHOTO TO UPLOAD
             </span>
           </div>
 
@@ -111,12 +111,20 @@ export default function EditPhotosPage() {
                 isUploading ? "opacity-60 pointer-events-none" : ""
               }`}
             >
-              <ImageUploader
-                onUpload={onUploaded}
-                onUploading={(preview) =>
-                  setUploadingPreview(preview)
-                }
-              />
+<ImageUploader
+  onUpload={onUploaded}
+  onUploading={(preview) => setUploadingPreview(preview)}
+>
+  <div className="flex flex-col items-center justify-center h-36 rounded-xl border-2 border-dashed border-gray-300 hover:border-black hover:bg-gray-50 transition cursor-pointer">
+    <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center text-xl mb-2">
+      +
+    </div>
+    <p className="text-sm font-medium">Add a photo</p>
+    <p className="text-xs text-gray-400 mt-1">JPG, PNG up to 5MB</p>
+  </div>
+</ImageUploader>
+
+
             </div>
           )}
         </section>
