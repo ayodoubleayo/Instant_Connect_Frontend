@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase"; // ✅ Import centralized client
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -15,7 +10,6 @@ export default function ForgotPasswordPage() {
 
   async function submit() {
     if (!email) return;
-
     setLoading(true);
 
     await supabase.auth.resetPasswordForEmail(email, {
@@ -29,9 +23,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow">
-        <h1 className="text-xl font-semibold mb-2">
-          Reset your password
-        </h1>
+        <h1 className="text-xl font-semibold mb-2">Reset your password</h1>
 
         {sent ? (
           <p className="text-sm text-gray-600">
@@ -46,7 +38,6 @@ export default function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border rounded-lg px-4 py-3 mb-4"
             />
-
             <button
               onClick={submit}
               disabled={!email || loading}
