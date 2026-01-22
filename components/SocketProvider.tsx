@@ -10,6 +10,22 @@ export function SocketProvider() {
   const hydrated = useUserStore((s) => s.hydrated);
 
   useEffect(() => {
+    // ✅ ADDED — recovery mode guard
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname; // ✅
+      const hash = window.location.hash;     // ✅
+
+      if (
+        path.startsWith("/reset-password") || // ✅
+        hash.includes("type=recovery")        // ✅
+      ) {
+        console.log(
+          "[SocketProvider] recovery mode → sockets disabled"
+        );
+        return; // ✅ HARD STOP
+      }
+    }
+
     if (!hydrated || !me) {
       console.log("[SocketProvider] waiting for user");
       return;
@@ -26,7 +42,10 @@ export function SocketProvider() {
         useChatStore.getState();
 
       if (activeMatchId !== msg.matchId) {
-        console.log("[SocketProvider] increment unread", msg.matchId);
+        console.log(
+          "[SocketProvider] increment unread",
+          msg.matchId
+        );
         incrementUnread(msg.matchId);
       }
     });

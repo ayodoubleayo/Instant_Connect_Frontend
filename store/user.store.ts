@@ -83,21 +83,38 @@ export const useUserStore = create<UserState>((set) => ({
     set({ isUploading: v });
   },
 
-  fetchMe: async () => {
-    console.log("🟣 [UserStore] fetchMe START");
-    set({ loading: true });
+fetchMe: async () => {
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    const hash = window.location.hash; // ✅ ADDED
 
-    try {
-      const user = await api<User>("/users/me");
-      console.log("🟢 [UserStore] fetchMe SUCCESS", user.id);
-      set({ me: user, hydrated: true });
-    } catch {
-      console.warn("🔴 [UserStore] fetchMe FAILED");
-      set({ me: null, hydrated: true });
-    } finally {
-      set({ loading: false });
+    // ✅ HARD STOP during password recovery
+    if (
+      path.startsWith("/reset-password") || // ✅ KEEP
+      hash.includes("type=recovery")         // ✅ ADDED
+    ) {
+      console.log(
+        "🟡 [UserStore] Recovery mode detected → SKIP fetchMe"
+      );
+      set({ hydrated: true }); // ✅ IMPORTANT
+      return;                  // ✅ HARD EXIT
     }
-  },
+  }
+
+  console.log("🟣 [UserStore] fetchMe START");
+  set({ loading: true });
+
+  try {
+    const user = await api<User>("/users/me");
+    console.log("🟢 [UserStore] fetchMe SUCCESS", user.id);
+    set({ me: user, hydrated: true });
+  } catch {
+    console.warn("🔴 [UserStore] fetchMe FAILED");
+    set({ me: null, hydrated: true });
+  } finally {
+    set({ loading: false });
+  }
+},
 
   /* ================= PROFILE ================= */
 
