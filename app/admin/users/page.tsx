@@ -7,6 +7,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  phone?: string;          // ✅ ADDED
   role: string;
   suspended: boolean;
   blocked: boolean;
@@ -49,8 +50,15 @@ export default function AdminUsersPage() {
           >
             <div>
               <p className="font-semibold">{u.username}</p>
+
               <p className="text-sm text-gray-500">{u.email}</p>
-              <p className="text-xs">
+
+              {/* ✅ PHONE NUMBER */}
+              <p className="text-sm text-gray-700">
+                📞 {u.phone ?? "No phone number"}
+              </p>
+
+              <p className="text-xs mt-1">
                 {u.blocked
                   ? "🚫 Blocked"
                   : u.suspended
@@ -79,10 +87,19 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="mt-6 flex gap-4">
-        <button onClick={() => setPage((p) => Math.max(1, p - 1))}>
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          className="px-3 py-1 border rounded"
+        >
           ◀ Prev
         </button>
-        <button onClick={() => setPage((p) => p + 1)}>Next ▶</button>
+
+        <button
+          onClick={() => setPage((p) => p + 1)}
+          className="px-3 py-1 border rounded"
+        >
+          Next ▶
+        </button>
       </div>
     </div>
   );
