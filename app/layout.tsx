@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "InstantConnect",
     images: [
       {
-        url: "/og-image.png",
+      url: "https://instantconnect.jaodr.com/og-image.png", // <-- absolute URL
         width: 1200,
         height: 630,
         alt: "InstantConnect",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "InstantConnect — Real Connections, Real Intentions",
     description:
       "A modern dating platform for serious relationships, marriage, and real connections.",
-    images: ["/og-image.png"],
+  images: ["https://instantconnect.jaodr.com/og-image.png"], // <-- absolute URL
   },
 };
 
