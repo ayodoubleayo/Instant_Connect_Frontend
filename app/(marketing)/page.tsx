@@ -64,14 +64,14 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="font-semibold text-lg">GIVEAWAY TIME!</div>
+            <div className="font-semibold text-lg">🎉 FIRST REGISTRATION BONUS!</div>
+            <div className="font-bold text-yellow-300 text-xl mt-1">#3000% Bonus 💰</div>
             <ul className="text-sm mt-2 space-y-1">
               <li>Refer 10 people → ₦2000 💸</li>
               <li>Refer 30 people → Peak Milk 🥛</li>
               <li>Refer 50 people → Indomie 🍜</li>
               <li className="text-xs">Age 18–100 welcome ✅</li>
-                            <li className="text-xs">USE CONTACT ABOVE TO CLAIM YOUR GIFT ✅</li>
-
+              <li className="text-xs">USE CONTACT ABOVE TO CLAIM YOUR GIFT ✅</li>
             </ul>
           </motion.div>
         )}

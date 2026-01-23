@@ -11,6 +11,8 @@ type RegisterPayload = {
   location?: string;
   latitude?: number;
   longitude?: number;
+   phone: string;
+  relationshipIntent: string;
 };
 
 export function useAuth() {

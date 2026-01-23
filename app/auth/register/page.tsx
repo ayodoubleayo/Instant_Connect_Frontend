@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useUserStore } from "@/store/user.store"; // ✅ ADD: hydrate user after register
+import { useUserStore } from "@/store/user.store";
 import { useRouter } from "next/navigation";
 
 type Gender = "MALE" | "FEMALE" | "";
 
 export default function RegisterPage() {
   const { register } = useAuth();
-  const fetchMe = useUserStore((s) => s.fetchMe); // ✅ ADD
+  const fetchMe = useUserStore((s) => s.fetchMe);
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -17,6 +17,8 @@ export default function RegisterPage() {
     username: "",
     email: "",
     password: "",
+    phone: "", // 🔴 ADDED
+    relationshipIntent: "", // 🔴 ADDED
     gender: "" as Gender,
     age: "",
     location: "",
@@ -29,7 +31,7 @@ export default function RegisterPage() {
   const [locStatus, setLocStatus] =
     useState<"idle" | "detecting" | "success" | "failed">("idle");
 
-  // 🌍 Silent location detection (UNCHANGED)
+  /* ================= LOCATION ================= */
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocStatus("failed");
@@ -51,20 +53,45 @@ export default function RegisterPage() {
     );
   }, []);
 
+  /* ================= SUBMIT ================= */
   async function submit() {
+    // 🔴 VALIDATION
+    if (!form.realName || !form.username || !form.email || !form.password) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    if (!form.phone.trim()) {
+      alert("Phone number is required");
+      return;
+    }
+
+    if (form.phone.trim().length < 7) {
+      alert("Phone number is too short");
+      return;
+    }
+
+    if (!form.relationshipIntent) {
+      alert("Please select what you are looking for");
+      return;
+    }
+
     if (!form.gender) {
       alert("Please select a gender");
       return;
     }
 
     setLoading(true);
+
     try {
-      // ✅ STEP 1: REGISTER (unchanged)
+      // ✅ REGISTER
       await register({
         realName: form.realName,
         username: form.username,
         email: form.email,
         password: form.password,
+        phone: form.phone, // 🔴 SENT
+        relationshipIntent: form.relationshipIntent, // 🔴 SENT
         gender: form.gender,
         age: Number(form.age),
         location: form.location || undefined,
@@ -72,22 +99,22 @@ export default function RegisterPage() {
         longitude: form.longitude,
       });
 
-      // ✅ STEP 2: HYDRATE USER (CRITICAL FIX)
+      // ✅ HYDRATE USER
       await fetchMe();
 
-      // ✅ STEP 3: REDIRECT
+      // ✅ REDIRECT
       router.replace("/profile/me");
     } catch (err: any) {
-      alert(err.message || "Registration failed");
+      alert(err?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   }
 
+  /* ================= UI ================= */
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6">
-
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-semibold">Create your account</h1>
           <p className="text-sm text-gray-500">
@@ -98,7 +125,7 @@ export default function RegisterPage() {
         <div className="space-y-4">
           <input
             className="input"
-            placeholder=" first-name e.g IFE "
+            placeholder="First name (e.g. IFE)"
             onChange={(e) =>
               setForm({ ...form, realName: e.target.value })
             }
@@ -121,6 +148,34 @@ export default function RegisterPage() {
             }
           />
 
+          <input
+            className="input"
+            placeholder="Phone number"
+            onChange={(e) =>
+              setForm({ ...form, phone: e.target.value })
+            }
+          />
+
+          <select
+            className="input"
+            value={form.relationshipIntent}
+            onChange={(e) =>
+              setForm({ ...form, relationshipIntent: e.target.value })
+            }
+          >
+            <option value="">What are you looking for?</option>
+            <option value="ONE_NIGHT">One night</option>
+            <option value="CASUAL">Casual</option>
+            <option value="SERIOUS">Serious</option>
+            <option value="MARRIAGE">Marriage</option>
+            <option value="LOOKING_FOR_WOMAN">Looking for a woman</option>
+            <option value="LOOKING_FOR_MAN">Looking for a man</option>
+            <option value="GYM_PARTNER">Gym partner</option>
+            <option value="TRAVEL_PARTNER">Travel partner</option>
+            <option value="EMOTIONAL_SUPPORT">Emotional support</option>
+            <option value="OTHER_PARTNER">Other</option>
+          </select>
+
           <div className="relative">
             <input
               className="input pr-12"
@@ -134,8 +189,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2
-                         text-xs text-gray-500 hover:text-black select-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -185,19 +239,14 @@ export default function RegisterPage() {
         <button
           onClick={submit}
           disabled={loading}
-          className="w-full rounded-xl bg-black py-3 text-white
-                     text-sm font-medium hover:bg-gray-800
-                     disabled:opacity-60"
+          className="w-full rounded-xl bg-black py-3 text-white disabled:opacity-60"
         >
           {loading ? "Creating account…" : "Create account"}
         </button>
 
         <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <a
-            href="/auth/login"
-            className="text-black font-medium hover:underline"
-          >
+          <a href="/auth/login" className="font-medium hover:underline">
             Log in
           </a>
         </p>
