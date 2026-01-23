@@ -4,6 +4,8 @@ import ClientProviders from "./ClientProviders";
 import { SocketProvider } from "@/components/SocketProvider";
 import type { Metadata } from "next";
 
+const OG_IMAGE_VERSION = "v1.0.0";
+
 export const metadata: Metadata = {
   title: {
     default: "InstantConnect — Real Connections, Real Intentions",
@@ -11,11 +13,7 @@ export const metadata: Metadata = {
   },
   description:
     "InstantConnect is a modern dating platform for people looking for marriage, serious relationships, casual dating, and real connections.",
-
-  // ✅ ADDED: SEO base URL
   metadataBase: new URL("https://instantconnect.jaodr.com"),
-
-  // ✅ ADDED: Open Graph (WhatsApp, Facebook, LinkedIn)
   openGraph: {
     title: "InstantConnect — Real Connections, Real Intentions",
     description:
@@ -24,7 +22,7 @@ export const metadata: Metadata = {
     siteName: "InstantConnect",
     images: [
       {
-      url: "https://instantconnect.jaodr.com/og-image.png", // <-- absolute URL
+        url: `https://instantconnect.jaodr.com/og-image.png?ver=${OG_IMAGE_VERSION}`,
         width: 1200,
         height: 630,
         alt: "InstantConnect",
@@ -32,14 +30,14 @@ export const metadata: Metadata = {
     ],
     type: "website",
   },
-
-  // ✅ ADDED: Twitter/X preview
   twitter: {
     card: "summary_large_image",
     title: "InstantConnect — Real Connections, Real Intentions",
     description:
       "A modern dating platform for serious relationships, marriage, and real connections.",
-  images: ["https://instantconnect.jaodr.com/og-image.png"], // <-- absolute URL
+    images: [
+      `https://instantconnect.jaodr.com/og-image.png?ver=${OG_IMAGE_VERSION}`,
+    ],
   },
 };
 
@@ -50,17 +48,28 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Structured data only */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              url: "https://instantconnect.jaodr.com",
+              name: "InstantConnect",
+              description:
+                "InstantConnect is a modern dating platform for serious relationships, marriage, and real connections.",
+              image: `https://instantconnect.jaodr.com/og-image.png?ver=${OG_IMAGE_VERSION}`,
+            }),
+          }}
+        />
+      </head>
       <body className="bg-gray-50 min-h-[100dvh]">
         <ClientProviders>
           <SocketProvider />
-
-          {/* ✅ GLOBAL NAV */}
           <Navbar />
-
-          {/* ✅ CONTENT AREA */}
-          <main className="pt-[64px]">
-            {children}
-          </main>
+          <main className="pt-[64px]">{children}</main>
         </ClientProviders>
       </body>
     </html>
